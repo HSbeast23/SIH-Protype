@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { fetchRailwayTracks, getMumbaiRailwayTracks, clearCache, getCacheStats } = require('./osm');
+const { snapTrainToTracks, snapMultipleTrains, generateSampleTrainPositions } = require('./snap');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -68,6 +69,181 @@ app.get('/api/osm', async (req, res) => {
 });
 
 /**
+ * POST /api/snap - Snap a single train to nearest railway track
+ * Body: { "position": [longitude, latitude], "trainId": "optional", "trainType": "optional" }
+ */
+app.post('/api/snap', async (req, res) => {
+    try {
+        const { position, trainId, trainType = 'local', trainBodyMeters = 150 } = req.body;
+        
+        if (!position || !Array.isArray(position) || position.length !== 2) {
+            return res.status(400).json({
+                error: 'Invalid position',
+                message: 'Position must be an array of [longitude, latitude]',
+                example: { position: [72.826, 19.054] }
+            });
+        }
+        
+        // Get Mumbai railway tracks
+        const railwayData = await getMumbaiRailwayTracks();
+        
+        if (!railwayData.features || railwayData.features.length === 0) {
+            return res.status(500).json({
+                error: 'No railway data available',
+                message: 'Could not fetch Mumbai railway tracks'
+            });
+        }
+        
+        // Snap train to track
+        const snappedTrain = snapTrainToTracks(
+            position,
+            railwayData.features,
+            {
+                trainBodyMeters,
+                trainId,
+                trainType
+            }
+        );
+        
+        if (!snappedTrain) {
+            return res.status(404).json({
+                error: 'No suitable track found',
+                message: 'Train position is too far from any railway track',
+                originalPosition: position
+            });
+        }
+        
+        res.json({
+            success: true,
+            train: snappedTrain,
+            metadata: {
+                processedAt: new Date().toISOString(),
+                trackCount: railwayData.features.length
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error in /api/snap endpoint:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            message: 'Failed to snap train to track'
+        });
+    }
+});
+
+/**
+ * POST /api/snap/multiple - Snap multiple trains to railway tracks
+ * Body: { "trains": [{ "position": [lon, lat], "id": "optional", "type": "optional" }] }
+ */
+app.post('/api/snap/multiple', async (req, res) => {
+    try {
+        const { trains, trainBodyMeters = 150 } = req.body;
+        
+        if (!trains || !Array.isArray(trains)) {
+            return res.status(400).json({
+                error: 'Invalid trains data',
+                message: 'Trains must be an array of train objects',
+                example: {
+                    trains: [
+                        { position: [72.826, 19.054], id: 1, type: 'local' },
+                        { position: [72.836, 19.104], id: 2, type: 'express' }
+                    ]
+                }
+            });
+        }
+        
+        // Get Mumbai railway tracks
+        const railwayData = await getMumbaiRailwayTracks();
+        
+        if (!railwayData.features || railwayData.features.length === 0) {
+            return res.status(500).json({
+                error: 'No railway data available',
+                message: 'Could not fetch Mumbai railway tracks'
+            });
+        }
+        
+        // Snap all trains to tracks
+        const snappedTrains = snapMultipleTrains(
+            trains,
+            railwayData.features,
+            { trainBodyMeters }
+        );
+        
+        res.json({
+            success: true,
+            trains: snappedTrains,
+            statistics: {
+                totalRequested: trains.length,
+                successfullySnapped: snappedTrains.length,
+                failed: trains.length - snappedTrains.length
+            },
+            metadata: {
+                processedAt: new Date().toISOString(),
+                trackCount: railwayData.features.length
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error in /api/snap/multiple endpoint:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            message: 'Failed to snap trains to tracks'
+        });
+    }
+});
+
+/**
+ * GET /api/trains/sample - Get sample train positions for Mumbai
+ */
+app.get('/api/trains/sample', async (req, res) => {
+    try {
+        const sampleTrains = generateSampleTrainPositions();
+        
+        // Get Mumbai railway tracks
+        const railwayData = await getMumbaiRailwayTracks();
+        
+        if (!railwayData.features || railwayData.features.length === 0) {
+            return res.json({
+                success: true,
+                trains: sampleTrains.map(train => ({
+                    ...train,
+                    snapped: false,
+                    message: 'Railway data not available for snapping'
+                }))
+            });
+        }
+        
+        // Snap sample trains to tracks
+        const snappedTrains = snapMultipleTrains(
+            sampleTrains,
+            railwayData.features,
+            { trainBodyMeters: 150 }
+        );
+        
+        res.json({
+            success: true,
+            trains: snappedTrains,
+            statistics: {
+                totalSampleTrains: sampleTrains.length,
+                successfullySnapped: snappedTrains.length,
+                trackCount: railwayData.features.length
+            },
+            metadata: {
+                description: '22 sample trains positioned on Mumbai railway network',
+                generatedAt: new Date().toISOString()
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error in /api/trains/sample endpoint:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            message: 'Failed to generate sample trains'
+        });
+    }
+});
+
+/**
  * GET /api/mumbai - Get Mumbai railway tracks with predefined bounding box
  */
 app.get('/api/mumbai', async (req, res) => {
@@ -79,6 +255,159 @@ app.get('/api/mumbai', async (req, res) => {
         res.status(500).json({
             error: 'Internal server error',
             message: 'Failed to fetch Mumbai railway data'
+        });
+    }
+});
+
+/**
+ * POST /api/snap - Snap a single train to nearest railway track
+ * Body: { "position": [longitude, latitude], "trainId": "optional", "trainType": "optional" }
+ */
+app.post('/api/snap', async (req, res) => {
+    try {
+        const { position, trainId, trainType, trainBodyMeters } = req.body;
+        
+        if (!position || !Array.isArray(position) || position.length !== 2) {
+            return res.status(400).json({
+                error: 'Invalid position',
+                message: 'Position must be an array of [longitude, latitude]',
+                example: { "position": [72.8777, 19.0760] }
+            });
+        }
+
+        // Get Mumbai railway tracks
+        const railwayData = await getMumbaiRailwayTracks();
+        
+        if (!railwayData.features || railwayData.features.length === 0) {
+            return res.status(503).json({
+                error: 'No railway data available',
+                message: 'Railway tracks not loaded. Please try again later.'
+            });
+        }
+
+        // Snap train to tracks
+        const snappedTrain = snapTrainToTracks(position, railwayData.features, {
+            trainId: trainId || `train_${Date.now()}`,
+            trainType: trainType || 'local',
+            trainBodyMeters: trainBodyMeters || 150
+        });
+
+        if (!snappedTrain) {
+            return res.status(404).json({
+                error: 'No suitable track found',
+                message: 'Could not snap train to any nearby railway track',
+                position: position
+            });
+        }
+
+        res.json(snappedTrain);
+
+    } catch (error) {
+        console.error('Error in /api/snap endpoint:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            message: 'Failed to snap train to tracks'
+        });
+    }
+});
+
+/**
+ * POST /api/snap-multiple - Snap multiple trains to railway tracks
+ * Body: { "trains": [{"position": [lon, lat], "id": "optional", "type": "optional"}] }
+ */
+app.post('/api/snap-multiple', async (req, res) => {
+    try {
+        const { trains, trainBodyMeters } = req.body;
+        
+        if (!trains || !Array.isArray(trains)) {
+            return res.status(400).json({
+                error: 'Invalid trains data',
+                message: 'Trains must be an array of train objects',
+                example: { 
+                    "trains": [
+                        {"position": [72.8777, 19.0760], "id": "train1", "type": "local"},
+                        {"position": [72.8800, 19.0800], "id": "train2", "type": "express"}
+                    ]
+                }
+            });
+        }
+
+        // Get Mumbai railway tracks
+        const railwayData = await getMumbaiRailwayTracks();
+        
+        if (!railwayData.features || railwayData.features.length === 0) {
+            return res.status(503).json({
+                error: 'No railway data available',
+                message: 'Railway tracks not loaded. Please try again later.'
+            });
+        }
+
+        // Snap all trains to tracks
+        const snappedTrains = snapMultipleTrains(trains, railwayData.features, {
+            trainBodyMeters: trainBodyMeters || 150
+        });
+
+        res.json({
+            totalTrains: trains.length,
+            successfullySnapped: snappedTrains.length,
+            failed: trains.length - snappedTrains.length,
+            trains: snappedTrains
+        });
+
+    } catch (error) {
+        console.error('Error in /api/snap-multiple endpoint:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            message: 'Failed to snap trains to tracks'
+        });
+    }
+});
+
+/**
+ * GET /api/demo-trains - Get demo trains snapped to Mumbai tracks
+ */
+app.get('/api/demo-trains', async (req, res) => {
+    try {
+        // Demo train positions around Mumbai
+        const demoTrains = [
+            { position: [72.8777, 19.0760], id: "mumbai_local_1", type: "local" },
+            { position: [72.8500, 19.0500], id: "mumbai_local_2", type: "local" },
+            { position: [72.9000, 19.1000], id: "mumbai_express_1", type: "express" },
+            { position: [72.8200, 19.0400], id: "western_line_1", type: "local" },
+            { position: [72.8900, 19.0900], id: "central_line_1", type: "local" },
+            { position: [72.8600, 19.0650], id: "mumbai_local_3", type: "local" },
+            { position: [72.8750, 19.0850], id: "mumbai_express_2", type: "express" }
+        ];
+
+        // Get Mumbai railway tracks
+        const railwayData = await getMumbaiRailwayTracks();
+        
+        if (!railwayData.features || railwayData.features.length === 0) {
+            return res.status(503).json({
+                error: 'No railway data available',
+                message: 'Railway tracks not loaded. Please try again later.'
+            });
+        }
+
+        // Snap demo trains to tracks
+        const snappedTrains = snapMultipleTrains(demoTrains, railwayData.features);
+
+        res.json({
+            description: 'Demo trains for Mumbai railway system',
+            totalTrains: demoTrains.length,
+            successfullySnapped: snappedTrains.length,
+            trains: snappedTrains,
+            metadata: {
+                generatedAt: new Date().toISOString(),
+                tracksLoaded: railwayData.features.length
+            }
+        });
+
+    } catch (error) {
+        console.error('Error in /api/demo-trains endpoint:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            message: 'Failed to generate demo trains'
         });
     }
 });
@@ -137,17 +466,26 @@ app.get('/', (req, res) => {
     res.json({
         name: 'Mumbai Railway Tracks API',
         version: '1.0.0',
-        description: 'API for fetching and caching railway track data from OpenStreetMap',
+        description: 'API for fetching railway track data from OpenStreetMap and snapping trains to tracks',
         endpoints: {
             'GET /api/osm?s={south}&w={west}&n={north}&e={east}': 'Fetch railway tracks for bounding box',
             'GET /api/mumbai': 'Get Mumbai railway tracks with predefined coordinates',
+            'POST /api/snap': 'Snap single train to nearest track',
+            'POST /api/snap-multiple': 'Snap multiple trains to tracks',
+            'GET /api/demo-trains': 'Get demo trains snapped to Mumbai tracks',
             'GET /api/cache/stats': 'Get cache statistics',
             'DELETE /api/cache': 'Clear cache',
             'GET /api/health': 'Health check'
         },
-        example: {
+        examples: {
             mumbai: 'http://localhost:3001/api/mumbai',
-            custom: 'http://localhost:3001/api/osm?s=18.9&w=72.7&n=19.3&e=73.0'
+            demoTrains: 'http://localhost:3001/api/demo-trains',
+            custom: 'http://localhost:3001/api/osm?s=18.9&w=72.7&n=19.3&e=73.0',
+            snapTrain: {
+                url: 'http://localhost:3001/api/snap',
+                method: 'POST',
+                body: { "position": [72.8777, 19.0760], "trainId": "test_train" }
+            }
         }
     });
 });
