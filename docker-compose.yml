@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # OSRD Backend Service
+  osrd:
+    image: ghcr.io/osrd-project/osrd:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - JAVA_OPTS=-Xmx2g
+      - OSRD_DB_URL=jdbc:postgresql://db:5432/osrd
+      - OSRD_DB_USERNAME=osrd
+      - OSRD_DB_PASSWORD=password
+    depends_on:
+      - db
+    volumes:
+      - osrd_data:/app/data
+      - ./osm-data:/app/osm-data
+    networks:
+      - railway-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # PostgreSQL Database for OSRD
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: osrd
+      POSTGRES_USER: osrd
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - railway-network
+    restart: unless-stopped
+
+  # Node.js Backend (existing)
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - OSRD_API_URL=http://osrd:8080
+    depends_on:
+      - osrd
+    networks:
+      - railway-network
+    restart: unless-stopped
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+
+  # React Frontend (existing)
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001
+      - REACT_APP_OSRD_URL=http://localhost:8080
+    depends_on:
+      - backend
+    networks:
+      - railway-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  osrd_data:
+
+networks:
+  railway-network:
+    driver: bridge

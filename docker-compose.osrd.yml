@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgis/postgis:13-3.1
+    container_name: osrd-postgres
+    environment:
+      POSTGRES_DB: osrd
+      POSTGRES_USER: osrd
+      POSTGRES_PASSWORD: osrd_password
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - osrd-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U osrd -d osrd"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  osrd-backend:
+    image: osrdproject/osrd:latest
+    container_name: osrd-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgresql://osrd:osrd_password@postgres:5432/osrd
+      - JAVA_OPTS=-Xmx2g
+      - OSRD_CONFIG_FILE=/app/config/application.yml
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - osrd-network
+    volumes:
+      - ./osrd-config:/app/config
+      - ./osrd-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  custom-backend:
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: mumbai-train-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - OSRD_API_URL=http://osrd-backend:8080
+      - NODE_ENV=production
+    depends_on:
+      osrd-backend:
+        condition: service_healthy
+    networks:
+      - osrd-network
+    volumes:
+      - ./server/data:/app/data
+
+volumes:
+  postgres_data:
+
+networks:
+  osrd-network:
+    driver: bridge

@@ -1,0 +1,11 @@
+-- Initialize OSRD database schema
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Create necessary tables for OSRD operations
+CREATE SCHEMA IF NOT EXISTS osrd;
+
+-- Grant permissions
+GRANT ALL PRIVILEGES ON SCHEMA osrd TO osrd;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA osrd TO osrd;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA osrd TO osrd;

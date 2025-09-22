@@ -1,0 +1,176 @@
+[
+  {
+    "train_id": "T001",
+    "train_name": "CST → Thane Local",
+    "origin_station": "CST",
+    "destination_station": "Thane",
+    "departure_time": "09:00",
+    "speed_kmph": 40,
+    "stations": [
+      {"name": "CST", "lat": 18.9400, "lon": 72.8350, "halt_time_sec": 120},
+      {"name": "Byculla", "lat": 18.9972, "lon": 72.8433, "halt_time_sec": 30},
+      {"name": "Dadar", "lat": 19.0182, "lon": 72.8471, "halt_time_sec": 60},
+      {"name": "Sion", "lat": 19.0370, "lon": 72.8553, "halt_time_sec": 20},
+      {"name": "Kurla", "lat": 19.0660, "lon": 72.8677, "halt_time_sec": 45},
+      {"name": "Ghatkopar", "lat": 19.0723, "lon": 72.8981, "halt_time_sec": 30},
+      {"name": "Bhandup", "lat": 19.1375, "lon": 72.9511, "halt_time_sec": 20},
+      {"name": "Mulund", "lat": 19.1512, "lon": 72.9623, "halt_time_sec": 20},
+      {"name": "Nahur", "lat": 19.1620, "lon": 72.9714, "halt_time_sec": 15},
+      {"name": "Thane", "lat": 19.2183, "lon": 72.9781, "halt_time_sec": 0}
+    ],
+    "route_geometry": [
+      {"lat": 18.9400, "lon": 72.8350},
+      {"lat": 18.9450, "lon": 72.8375},
+      {"lat": 18.9550, "lon": 72.8400},
+      {"lat": 18.9602, "lon": 72.8425},
+      {"lat": 18.9770, "lon": 72.8430},
+      {"lat": 18.9972, "lon": 72.8433},
+      {"lat": 19.0080, "lon": 72.8450},
+      {"lat": 19.0182, "lon": 72.8471},
+      {"lat": 19.0280, "lon": 72.8500},
+      {"lat": 19.0370, "lon": 72.8553},
+      {"lat": 19.0490, "lon": 72.8600},
+      {"lat": 19.0660, "lon": 72.8677},
+      {"lat": 19.0700, "lon": 72.8800},
+      {"lat": 19.0723, "lon": 72.8981},
+      {"lat": 19.1000, "lon": 72.9200},
+      {"lat": 19.1375, "lon": 72.9511},
+      {"lat": 19.1512, "lon": 72.9623},
+      {"lat": 19.1620, "lon": 72.9714},
+      {"lat": 19.2183, "lon": 72.9781}
+    ],
+    "status": "running"
+  },
+
+  {
+    "train_id": "T002",
+    "train_name": "Churchgate → Borivali Local",
+    "origin_station": "Churchgate",
+    "destination_station": "Borivali",
+    "departure_time": "09:15",
+    "speed_kmph": 45,
+    "stations": [
+      {"name": "Churchgate", "lat": 18.9220, "lon": 72.8258, "halt_time_sec": 60},
+      {"name": "Marine Lines", "lat": 18.9407, "lon": 72.8250, "halt_time_sec": 15},
+      {"name": "Grant Road", "lat": 18.9584, "lon": 72.8205, "halt_time_sec": 10},
+      {"name": "Dadar (W)", "lat": 19.0182, "lon": 72.8471, "halt_time_sec": 45},
+      {"name": "Lower Parel", "lat": 19.0021, "lon": 72.8246, "halt_time_sec": 20},
+      {"name": "Santacruz", "lat": 19.0660, "lon": 72.8289, "halt_time_sec": 20},
+      {"name": "Andheri", "lat": 19.1191, "lon": 72.8460, "halt_time_sec": 30},
+      {"name": "Goregaon", "lat": 19.1592, "lon": 72.8415, "halt_time_sec": 20},
+      {"name": "Malad", "lat": 19.1818, "lon": 72.8412, "halt_time_sec": 20},
+      {"name": "Kandivali", "lat": 19.2273, "lon": 72.8560, "halt_time_sec": 20},
+      {"name": "Borivali", "lat": 19.2400, "lon": 72.8560, "halt_time_sec": 0}
+    ],
+    "route_geometry": [
+      {"lat": 18.9220, "lon": 72.8258},
+      {"lat": 18.9300, "lon": 72.8260},
+      {"lat": 18.9407, "lon": 72.8250},
+      {"lat": 18.9500, "lon": 72.8230},
+      {"lat": 18.9584, "lon": 72.8205},
+      {"lat": 18.9800, "lon": 72.8230},
+      {"lat": 19.0021, "lon": 72.8246},
+      {"lat": 19.0182, "lon": 72.8471},
+      {"lat": 19.0400, "lon": 72.8350},
+      {"lat": 19.0660, "lon": 72.8289},
+      {"lat": 19.1000, "lon": 72.8350},
+      {"lat": 19.1191, "lon": 72.8460},
+      {"lat": 19.1400, "lon": 72.8440},
+      {"lat": 19.1592, "lon": 72.8415},
+      {"lat": 19.1818, "lon": 72.8412},
+      {"lat": 19.2000, "lon": 72.8470},
+      {"lat": 19.2273, "lon": 72.8560},
+      {"lat": 19.2400, "lon": 72.8560}
+    ],
+    "status": "running"
+  },
+
+  {
+    "train_id": "T003",
+    "train_name": "Mumbai Central → Virar (fast)",
+    "origin_station": "Mumbai Central",
+    "destination_station": "Virar",
+    "departure_time": "09:30",
+    "speed_kmph": 60,
+    "stations": [
+      {"name": "Mumbai Central", "lat": 18.9398, "lon": 72.8356, "halt_time_sec": 60},
+      {"name": "Borivali", "lat": 19.2400, "lon": 72.8560, "halt_time_sec": 30},
+      {"name": "Vasai Road", "lat": 19.3850, "lon": 72.8390, "halt_time_sec": 30},
+      {"name": "Virar", "lat": 19.4444, "lon": 72.7987, "halt_time_sec": 0}
+    ],
+    "route_geometry": [
+      {"lat": 18.9398, "lon": 72.8356},
+      {"lat": 18.9800, "lon": 72.8360},
+      {"lat": 19.0200, "lon": 72.8400},
+      {"lat": 19.0600, "lon": 72.8450},
+      {"lat": 19.1000, "lon": 72.8500},
+      {"lat": 19.1400, "lon": 72.8520},
+      {"lat": 19.1800, "lon": 72.8530},
+      {"lat": 19.2100, "lon": 72.8540},
+      {"lat": 19.2400, "lon": 72.8560},
+      {"lat": 19.2800, "lon": 72.8500},
+      {"lat": 19.3300, "lon": 72.8450},
+      {"lat": 19.3850, "lon": 72.8390},
+      {"lat": 19.4444, "lon": 72.7987}
+    ],
+    "status": "running"
+  },
+
+  {
+    "train_id": "T004",
+    "train_name": "CST → Panvel (Harbour)",
+    "origin_station": "CST",
+    "destination_station": "Panvel",
+    "departure_time": "09:45",
+    "speed_kmph": 35,
+    "stations": [
+      {"name": "CST", "lat": 18.9400, "lon": 72.8350, "halt_time_sec": 90},
+      {"name": "Kurla", "lat": 19.0660, "lon": 72.8677, "halt_time_sec": 30},
+      {"name": "Vashi", "lat": 19.0594, "lon": 73.0186, "halt_time_sec": 30},
+      {"name": "Belapur", "lat": 19.0319, "lon": 73.0179, "halt_time_sec": 20},
+      {"name": "Panvel", "lat": 18.9876, "lon": 73.1171, "halt_time_sec": 0}
+    ],
+    "route_geometry": [
+      {"lat": 18.9400, "lon": 72.8350},
+      {"lat": 18.9600, "lon": 72.8400},
+      {"lat": 19.0000, "lon": 72.8600},
+      {"lat": 19.0400, "lon": 72.8900},
+      {"lat": 19.0660, "lon": 72.8677},
+      {"lat": 19.0500, "lon": 72.9000},
+      {"lat": 19.0400, "lon": 72.9400},
+      {"lat": 19.0300, "lon": 72.9800},
+      {"lat": 19.0594, "lon": 73.0186},
+      {"lat": 19.0400, "lon": 73.0400},
+      {"lat": 19.0319, "lon": 73.0179},
+      {"lat": 18.9950, "lon": 73.0500},
+      {"lat": 18.9876, "lon": 73.1171}
+    ],
+    "status": "running"
+  },
+
+  {
+    "train_id": "T005",
+    "train_name": "Thane → Kalyan Local",
+    "origin_station": "Thane",
+    "destination_station": "Kalyan",
+    "departure_time": "10:00",
+    "speed_kmph": 45,
+    "stations": [
+      {"name": "Thane", "lat": 19.2183, "lon": 72.9781, "halt_time_sec": 60},
+      {"name": "Kalwa", "lat": 19.2062, "lon": 72.9918, "halt_time_sec": 20},
+      {"name": "Mumbra", "lat": 19.1656, "lon": 73.0008, "halt_time_sec": 20},
+      {"name": "Kalyan", "lat": 19.2403, "lon": 73.1307, "halt_time_sec": 0}
+    ],
+    "route_geometry": [
+      {"lat": 19.2183, "lon": 72.9781},
+      {"lat": 19.2100, "lon": 72.9900},
+      {"lat": 19.2062, "lon": 72.9918},
+      {"lat": 19.1900, "lon": 72.9960},
+      {"lat": 19.1656, "lon": 73.0008},
+      {"lat": 19.1800, "lon": 73.0200},
+      {"lat": 19.2100, "lon": 73.0700},
+      {"lat": 19.2403, "lon": 73.1307}
+    ],
+    "status": "running"
+  }
+]

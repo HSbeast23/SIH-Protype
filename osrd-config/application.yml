@@ -1,0 +1,49 @@
+# OSRD Configuration for Mumbai Train Simulation
+database:
+  url: ${DATABASE_URL:jdbc:postgresql://postgres:5432/osrd}
+  username: osrd
+  password: osrd_password
+  driver-class-name: org.postgresql.Driver
+
+server:
+  port: 8080
+
+logging:
+  level:
+    fr.sncf.osrd: DEBUG
+    root: INFO
+
+osrd:
+  # Enable OSM import capabilities
+  osm:
+    enabled: true
+    max-file-size: 500MB
+
+  # Train simulation settings
+  simulation:
+    max-trains: 100
+    update-interval: 1000 # milliseconds
+
+  # API settings
+  api:
+    cors:
+      enabled: true
+      allowed-origins:
+        - "http://localhost:3000"
+        - "http://localhost:3001"
+      allowed-methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+      allowed-headers: "*"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
