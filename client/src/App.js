@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import WorkingMapView from './WorkingMapView';
+import MapView from './MapView';
 import './App.css';
 
 function App() {
@@ -14,10 +14,19 @@ function App() {
     return () => clearInterval(timer);
   }, []);
 
+  // Dummy data for SIH simulation
+  const trainStats = {
+    totalTrains: 22,
+    onTime: 18,
+    delayed: 4,
+    avgDelay: 12, // minutes
+    activeRoutes: 15
+  };
+
   const recentAlerts = [
-    { id: 1, type: 'delay', message: 'Central Line train delayed by 5 minutes at Dadar', time: '2 min ago' },
-    { id: 2, type: 'maintenance', message: 'Western Line track maintenance at Andheri', time: '5 min ago' },
-    { id: 3, type: 'rescheduled', message: 'Harbour Line express on schedule', time: '8 min ago' }
+    { id: 1, type: 'delay', message: 'Local train on Western Line delayed by 15 minutes', time: '2 min ago' },
+    { id: 2, type: 'maintenance', message: 'Track maintenance scheduled for Platform 3', time: '5 min ago' },
+    { id: 3, type: 'rescheduled', message: 'Express train rescheduled due to weather conditions', time: '8 min ago' }
   ];
 
   return (
@@ -53,42 +62,42 @@ function App() {
         <aside className="sidebar">
           {/* Train Statistics */}
           <div className="sidebar-section">
-            <h2 className="section-title">Live Train Statistics</h2>
+            <h2 className="section-title">Train Statistics</h2>
             <div className="stats-grid">
               <div className="stat-card total">
-                <div className="stat-number">5</div>
-                <div className="stat-label">Mumbai Trains</div>
+                <div className="stat-number">{trainStats.totalTrains}</div>
+                <div className="stat-label">Total Trains</div>
               </div>
               <div className="stat-card on-time">
-                <div className="stat-number">3</div>
-                <div className="stat-label">Running</div>
+                <div className="stat-number">{trainStats.onTime}</div>
+                <div className="stat-label">On Time</div>
               </div>
               <div className="stat-card delayed">
-                <div className="stat-number">2</div>
-                <div className="stat-label">At Station</div>
+                <div className="stat-number">{trainStats.delayed}</div>
+                <div className="stat-label">Delayed</div>
               </div>
               <div className="stat-card avg-delay">
-                <div className="stat-number">LIVE</div>
-                <div className="stat-label">Status</div>
+                <div className="stat-number">{trainStats.avgDelay}m</div>
+                <div className="stat-label">Avg Delay</div>
               </div>
             </div>
           </div>
 
           {/* Quick Actions */}
           <div className="sidebar-section">
-            <h2 className="section-title">Quick Controls</h2>
+            <h2 className="section-title">Quick Actions</h2>
             <div className="action-buttons">
               <button className="action-btn primary">
-                🚂 View Live Trains
+                📊 View Analytics
               </button>
               <button className="action-btn secondary">
-                📊 Train Analytics
+                🔄 Reschedule Trains
               </button>
               <button className="action-btn secondary">
-                🗺️ Track Details
+                ⚠️ Manage Delays
               </button>
               <button className="action-btn secondary">
-                ⚡ Refresh Data
+                📱 Send Alerts
               </button>
             </div>
           </div>
@@ -112,7 +121,7 @@ function App() {
             <div className="status-indicators">
               <div className="status-item">
                 <span className="status-dot online"></span>
-                <span className="status-text">Backend API</span>
+                <span className="status-text">API Server</span>
               </div>
               <div className="status-item">
                 <span className="status-dot online"></span>
@@ -120,7 +129,7 @@ function App() {
               </div>
               <div className="status-item">
                 <span className="status-dot online"></span>
-                <span className="status-text">Live Simulation</span>
+                <span className="status-text">Real-time Updates</span>
               </div>
             </div>
           </div>
@@ -129,22 +138,18 @@ function App() {
         {/* Map Area */}
         <main className="map-area">
           <div className="map-header">
-            <h2 className="map-title">Mumbai Railway Live Simulation</h2>
+            <h2 className="map-title">Mumbai Railway Network</h2>
             <div className="map-controls">
               <span className="map-legend">
                 <span className="legend-item">
-                  <span className="legend-color railway" style={{backgroundColor: '#dc2626'}}></span>
+                  <span className="legend-color railway"></span>
                   Railway Tracks
-                </span>
-                <span className="legend-item">
-                  <span className="legend-color trains" style={{backgroundColor: '#3b82f6'}}></span>
-                  Live Trains
                 </span>
               </span>
             </div>
           </div>
           <div className="map-wrapper">
-            <WorkingMapView />
+            <MapView />
           </div>
         </main>
       </div>
